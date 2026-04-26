@@ -1,0 +1,1214 @@
+openapi: 3.0.3
+info:
+  title: Калды.ру API
+  description: REST API для сайта-визитки базы отдыха «Калды.ру»
+  version: 1.0.0
+
+servers:
+  - url: https://api.kaldy.ru/v1
+    description: Production
+  - url: http://localhost:8080/v1
+    description: Local development
+
+# ─────────────────────────────────────────
+# Security
+# ─────────────────────────────────────────
+securitySchemes:
+  bearerAuth:
+    type: http
+    scheme: bearer
+    bearerFormat: JWT
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  # ─────────────────────────────────────────
+  # Schemas
+  # ─────────────────────────────────────────
+  schemas:
+
+    # --- Auth ---
+
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+          example: admin
+        password:
+          type: string
+          format: password
+          example: secret
+
+    LoginResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: JWT токен, передавать в Authorization Bearer
+        expiresIn:
+          type: integer
+          description: Время жизни токена в секундах
+          example: 86400
+
+    # --- Rooms ---
+
+    RoomShort:
+      type: object
+      description: Краткое представление номера для каталога и превью
+      properties:
+        id:
+          type: integer
+          example: 7
+        slug:
+          type: string
+          description: URL-friendly идентификатор
+          example: cottage-7-8
+        name:
+          type: string
+          example: Коттедж №7 / №8
+        type:
+          type: string
+          enum: [cottage, building, small_house]
+          description: cottage — коттедж, building — корпус, small_house — домик
+        capacity:
+          type: integer
+          description: Основная вместимость
+          example: 7
+        capacityExtra:
+          type: integer
+          description: Максимум с допместами
+          example: 9
+        priceWeekday:
+          type: integer
+          description: Цена будни, рублей в сутки
+          example: 7200
+        priceWeekend:
+          type: integer
+          description: Цена выходные/праздники, рублей в сутки
+          example: 9500
+        priceExtra:
+          type: integer
+          description: Цена допместа, рублей в сутки
+          example: 700
+        hasBedding:
+          type: boolean
+          description: Входит ли постельное бельё
+          example: true
+        featured:
+          type: boolean
+          description: Показывать бейдж «Популярный»
+          example: true
+        coverImageUrl:
+          type: string
+          format: uri
+          description: URL обложки из Яндекс Object Storage
+          example: https://storage.yandexcloud.net/kaldy/rooms/7/cover.jpg
+
+    RoomFull:
+      allOf:
+        - $ref: '#/components/schemas/RoomShort'
+        - type: object
+          properties:
+            description:
+              type: string
+              example: Просторный коттедж на берегу озера с террасой и видом на воду...
+            amenities:
+              type: array
+              description: Список удобств
+              items:
+                type: string
+              example: [Терраса, Мангал, Парковка, Санузел]
+            images:
+              type: array
+              description: Все фото номера
+              items:
+                $ref: '#/components/schemas/Image'
+            checkIn:
+              type: string
+              example: "14:00"
+            checkOut:
+              type: string
+              example: "12:00"
+            petPolicy:
+              type: string
+              description: Условия размещения с животными
+              example: По согласованию, +500 ₽/сутки
+            paymentNote:
+              type: string
+              example: Только наличные
+
+    RoomCreate:
+      type: object
+      required: [name, type, capacity, priceWeekday, priceWeekend, hasBedding]
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum: [cottage, building, small_house]
+        capacity:
+          type: integer
+        capacityExtra:
+          type: integer
+        priceWeekday:
+          type: integer
+        priceWeekend:
+          type: integer
+        priceExtra:
+          type: integer
+        hasBedding:
+          type: boolean
+        featured:
+          type: boolean
+          default: false
+        description:
+          type: string
+        amenities:
+          type: array
+          items:
+            type: string
+        checkIn:
+          type: string
+          example: "14:00"
+        checkOut:
+          type: string
+          example: "12:00"
+        petPolicy:
+          type: string
+        paymentNote:
+          type: string
+
+    # --- Services ---
+
+    ServiceShort:
+      type: object
+      description: Краткое представление услуги для каталога и превью
+      properties:
+        id:
+          type: integer
+          example: 1
+        slug:
+          type: string
+          example: banya-na-beregu
+        name:
+          type: string
+          example: Баня на берегу озера
+        category:
+          type: string
+          enum: [water, bath, food, activity, territory]
+          description: >
+            water — водный отдых,
+            bath — баня и отдых,
+            food — питание,
+            activity — активности,
+            territory — территория
+        price:
+          type: integer
+          nullable: true
+          description: Цена в рублях. null если бесплатно или уточнять
+          example: 1250
+        priceUnit:
+          type: string
+          enum: [hour, day, person, set, stay, free, ask]
+          description: >
+            hour — в час,
+            day — в день,
+            person — с человека,
+            set — за комплект,
+            stay — за проживание,
+            free — бесплатно,
+            ask — уточнить у администратора
+          example: hour
+        capacity:
+          type: integer
+          nullable: true
+          description: Вместимость (для бань, мангальных зон)
+          example: 6
+        featured:
+          type: boolean
+          example: false
+        coverImageUrl:
+          type: string
+          format: uri
+          example: https://storage.yandexcloud.net/kaldy/services/1/cover.jpg
+
+    ServiceFull:
+      allOf:
+        - $ref: '#/components/schemas/ServiceShort'
+        - type: object
+          properties:
+            description:
+              type: string
+              example: Баня на дровах прямо у воды. Деревянная дорожка ведёт к озеру...
+            details:
+              type: object
+              description: Дополнительные параметры в формате ключ-значение
+              additionalProperties:
+                type: string
+              example:
+                Тип: Баня на дровах
+                Расположение: На берегу озера
+                В комплекте: Комната отдыха, дорожка до воды
+                Режим работы: По согласованию
+            rules:
+              type: array
+              description: Правила использования услуги
+              items:
+                type: string
+              example:
+                - Бронирование заранее у администратора
+                - Минимальное время аренды — 1 час
+                - Оплата только наличными
+            images:
+              type: array
+              items:
+                $ref: '#/components/schemas/Image'
+
+    ServiceCreate:
+      type: object
+      required: [name, category, priceUnit]
+      properties:
+        name:
+          type: string
+        category:
+          type: string
+          enum: [water, bath, food, activity, territory]
+        price:
+          type: integer
+          nullable: true
+        priceUnit:
+          type: string
+          enum: [hour, day, person, set, stay, free, ask]
+        capacity:
+          type: integer
+          nullable: true
+        featured:
+          type: boolean
+          default: false
+        description:
+          type: string
+        details:
+          type: object
+          additionalProperties:
+            type: string
+        rules:
+          type: array
+          items:
+            type: string
+
+    # --- Shared ---
+
+    GalleryCategory:
+      type: string
+      enum: [nature, beach, territory, rooms, events]
+      description: >
+        nature — природа и озеро,
+        beach — пляж,
+        territory — территория,
+        rooms — номера,
+        events — мероприятия
+
+    Image:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 42
+        url:
+          type: string
+          format: uri
+          example: https://storage.yandexcloud.net/kaldy/rooms/7/photo-1.jpg
+        alt:
+          type: string
+          description: Alt-текст для SEO и доступности
+          example: Терраса коттеджа №7 с видом на озеро
+        order:
+          type: integer
+          description: Порядок внутри номера/услуги (0 — обложка)
+          example: 0
+        galleryCategories:
+          type: array
+          description: >
+            Категории галереи. Одно фото может входить в несколько категорий.
+            Пустой массив — фото не показывается в галерее.
+          items:
+            $ref: '#/components/schemas/GalleryCategory'
+          example: [rooms, territory]
+        galleryOrder:
+          type: integer
+          nullable: true
+          description: Ручной порядок в галерее (задаётся администратором через reorder)
+          example: 5
+        uploadedAt:
+          type: string
+          format: date-time
+          description: Дата и время загрузки (UTC)
+          example: "2025-06-15T10:30:00Z"
+        roomId:
+          type: integer
+          nullable: true
+          description: ID номера, к которому привязано фото (null если не привязано)
+          example: 7
+        serviceId:
+          type: integer
+          nullable: true
+          description: ID услуги, к которой привязано фото (null если не привязано)
+          example: null
+
+    GalleryReorderRequest:
+      type: object
+      required: [items]
+      description: Новый порядок фото в галерее для конкретной категории
+      properties:
+        category:
+          $ref: '#/components/schemas/GalleryCategory'
+        items:
+          type: array
+          description: Массив ID фото в нужном порядке (от первого к последнему)
+          items:
+            type: integer
+          example: [12, 5, 33, 7, 19]
+
+    ImageUploadRequest:
+      type: object
+      required: [file]
+      properties:
+        file:
+          type: string
+          format: binary
+        alt:
+          type: string
+          description: Alt-текст
+        order:
+          type: integer
+          description: Порядок внутри номера/услуги
+        galleryCategories:
+          type: array
+          description: Категории галереи (можно задать сразу при загрузке)
+          items:
+            $ref: '#/components/schemas/GalleryCategory'
+          example: [rooms]
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        pageSize:
+          type: integer
+          example: 12
+        total:
+          type: integer
+          example: 30
+        totalPages:
+          type: integer
+          example: 3
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+          example: NOT_FOUND
+        message:
+          type: string
+          example: Номер не найден
+
+# ─────────────────────────────────────────
+# Paths
+# ─────────────────────────────────────────
+paths:
+
+  # ── Auth ──────────────────────────────
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Авторизация администратора
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Успешная авторизация
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Неверный логин или пароль
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Обновление JWT токена
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Новый токен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Токен истёк или недействителен
+
+  # ── Rooms (public) ────────────────────
+
+  /rooms:
+    get:
+      tags: [Rooms]
+      summary: Список номеров (каталог)
+      parameters:
+        - name: type
+          in: query
+          description: Фильтр по типу жилья
+          schema:
+            type: string
+            enum: [cottage, building, small_house]
+        - name: capacity
+          in: query
+          description: Минимальная вместимость
+          schema:
+            type: integer
+            example: 4
+        - name: priceMin
+          in: query
+          schema:
+            type: integer
+            example: 2000
+        - name: priceMax
+          in: query
+          schema:
+            type: integer
+            example: 8000
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [price_asc, price_desc, popular]
+            default: popular
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            default: 12
+      responses:
+        '200':
+          description: Список номеров с пагинацией
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RoomShort'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+  /rooms/featured:
+    get:
+      tags: [Rooms]
+      summary: Популярные номера для превью на главной (3 штуки)
+      responses:
+        '200':
+          description: Список featured номеров
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RoomShort'
+                maxItems: 3
+
+  /rooms/{id}:
+    get:
+      tags: [Rooms]
+      summary: Карточка номера
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Полные данные номера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoomFull'
+        '404':
+          description: Номер не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /rooms/{id}/similar:
+    get:
+      tags: [Rooms]
+      summary: Похожие номера (для блока внизу карточки)
+      description: >
+        Возвращает 3 номера. Приоритет подбора:
+        1. По вместимости (совпадение ±1)
+        2. По цене (ближайшие по priceWeekday)
+        Текущий номер исключается из результата.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Список похожих номеров
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RoomShort'
+                maxItems: 3
+
+  # ── Services (public) ─────────────────
+
+  /services:
+    get:
+      tags: [Services]
+      summary: Список услуг (каталог)
+      parameters:
+        - name: category
+          in: query
+          description: Фильтр по категории
+          schema:
+            type: string
+            enum: [water, bath, food, activity, territory]
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [price_asc, price_desc]
+            default: price_asc
+      responses:
+        '200':
+          description: Список услуг, сгруппированных по категориям
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    category:
+                      type: string
+                      example: bath
+                    categoryLabel:
+                      type: string
+                      example: Баня и отдых
+                    services:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/ServiceShort'
+
+  /services/featured:
+    get:
+      tags: [Services]
+      summary: Популярные услуги для превью на главной (4 штуки)
+      responses:
+        '200':
+          description: Список featured услуг
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServiceShort'
+                maxItems: 4
+
+  /services/{id}:
+    get:
+      tags: [Services]
+      summary: Карточка услуги
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Полные данные услуги
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceFull'
+        '404':
+          description: Услуга не найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /services/{id}/similar:
+    get:
+      tags: [Services]
+      summary: Похожие услуги (для блока внизу карточки)
+      description: >
+        Возвращает 3 услуги из той же категории.
+        Текущая услуга исключается из результата.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Список похожих услуг
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServiceShort'
+                maxItems: 3
+
+  # ── Admin: Rooms ──────────────────────
+
+  /admin/rooms:
+    get:
+      tags: [Admin — Rooms]
+      summary: Список всех номеров (админка)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Список номеров с пагинацией
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RoomShort'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          description: Не авторизован
+
+    post:
+      tags: [Admin — Rooms]
+      summary: Создать номер
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoomCreate'
+      responses:
+        '201':
+          description: Номер создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoomFull'
+        '400':
+          description: Ошибка валидации
+        '401':
+          description: Не авторизован
+
+  /admin/rooms/{id}:
+    put:
+      tags: [Admin — Rooms]
+      summary: Обновить номер
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoomCreate'
+      responses:
+        '200':
+          description: Номер обновлён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoomFull'
+        '404':
+          description: Номер не найден
+
+    delete:
+      tags: [Admin — Rooms]
+      summary: Удалить номер
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Номер удалён
+        '404':
+          description: Номер не найден
+
+  /admin/rooms/{id}/images:
+    post:
+      tags: [Admin — Rooms]
+      summary: Загрузить фото к номеру
+      description: >
+        Загружает файл на бэкенд, бэкенд сохраняет в Яндекс Object Storage
+        и возвращает полную схему Image включая galleryCategories и uploadedAt.
+        Можно сразу указать galleryCategories чтобы фото появилось в галерее.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ImageUploadRequest'
+      responses:
+        '201':
+          description: Фото загружено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Image'
+
+  /admin/rooms/{id}/images/{imageId}:
+    delete:
+      tags: [Admin — Rooms]
+      summary: Удалить фото номера
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: imageId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Фото удалено
+
+  # ── Admin: Services ───────────────────
+
+  /admin/services:
+    get:
+      tags: [Admin — Services]
+      summary: Список всех услуг (админка)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Список услуг
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServiceShort'
+
+    post:
+      tags: [Admin — Services]
+      summary: Создать услугу
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceCreate'
+      responses:
+        '201':
+          description: Услуга создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceFull'
+
+  /admin/services/{id}:
+    put:
+      tags: [Admin — Services]
+      summary: Обновить услугу
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceCreate'
+      responses:
+        '200':
+          description: Услуга обновлена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceFull'
+
+    delete:
+      tags: [Admin — Services]
+      summary: Удалить услугу
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Услуга удалена
+
+  /admin/services/{id}/images:
+    post:
+      tags: [Admin — Services]
+      summary: Загрузить фото к услуге
+      description: >
+        Можно сразу указать galleryCategories чтобы фото появилось в галерее.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ImageUploadRequest'
+      responses:
+        '201':
+          description: Фото загружено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Image'
+
+  /admin/services/{id}/images/{imageId}:
+    delete:
+      tags: [Admin — Services]
+      summary: Удалить фото услуги
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: imageId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Фото удалено
+
+  # ── Gallery (public) ──────────────────
+
+  /gallery:
+    get:
+      tags: [Gallery]
+      summary: Фото для галереи с фильтрацией и сортировкой
+      description: >
+        Возвращает фото у которых galleryCategories не пустой.
+        По умолчанию сортировка по galleryOrder (ручной порядок администратора),
+        при равном galleryOrder — по uploadedAt desc (новые выше).
+      parameters:
+        - name: category
+          in: query
+          description: Фильтр по категории галереи. Без параметра — все фото.
+          schema:
+            $ref: '#/components/schemas/GalleryCategory'
+        - name: sort
+          in: query
+          description: >
+            manual — ручной порядок (galleryOrder asc, uploadedAt desc),
+            newest — сначала новые (uploadedAt desc)
+          schema:
+            type: string
+            enum: [manual, newest]
+            default: manual
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            default: 24
+      responses:
+        '200':
+          description: Список фото с пагинацией
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Image'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+  /gallery/categories:
+    get:
+      tags: [Gallery]
+      summary: Категории галереи со счётчиками фото
+      description: >
+        Используется для отрисовки чипов-фильтров на странице галереи.
+        Возвращает только категории где есть хотя бы одно фото.
+      responses:
+        '200':
+          description: Список категорий с количеством фото
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    category:
+                      $ref: '#/components/schemas/GalleryCategory'
+                    label:
+                      type: string
+                      example: Природа и озеро
+                    count:
+                      type: integer
+                      example: 34
+                example:
+                  - category: nature
+                    label: Природа и озеро
+                    count: 34
+                  - category: beach
+                    label: Пляж
+                    count: 18
+                  - category: territory
+                    label: Территория
+                    count: 22
+                  - category: rooms
+                    label: Номера
+                    count: 41
+                  - category: events
+                    label: Мероприятия
+                    count: 11
+
+  # ── Admin: Gallery ────────────────────
+
+  /admin/gallery/images:
+    post:
+      tags: [Admin — Gallery]
+      summary: Загрузить фото напрямую в галерею (не привязанное к номеру/услуге)
+      description: >
+        Используется для фото природы, пляжа, мероприятий —
+        тех что не относятся к конкретному номеру или услуге.
+        Поле galleryCategories обязательно (иначе фото нигде не появится).
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, galleryCategories]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                alt:
+                  type: string
+                galleryCategories:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/GalleryCategory'
+                  example: [nature, beach]
+      responses:
+        '201':
+          description: Фото загружено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Image'
+        '401':
+          description: Не авторизован
+
+  /admin/gallery/images/{imageId}:
+    patch:
+      tags: [Admin — Gallery]
+      summary: Обновить категории галереи у фото
+      description: >
+        Позволяет добавить или убрать фото из категорий галереи
+        без повторной загрузки файла. Работает для любых фото —
+        привязанных к номеру/услуге и отдельных.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: imageId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [galleryCategories]
+              properties:
+                galleryCategories:
+                  type: array
+                  description: Полный новый список категорий (заменяет старый)
+                  items:
+                    $ref: '#/components/schemas/GalleryCategory'
+                  example: [nature, beach]
+      responses:
+        '200':
+          description: Категории обновлены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Image'
+        '404':
+          description: Фото не найдено
+
+    delete:
+      tags: [Admin — Gallery]
+      summary: Удалить фото из галереи и хранилища
+      description: >
+        Полностью удаляет фото из Яндекс Object Storage и БД.
+        Если фото привязано к номеру или услуге — удаление запрещено
+        (сначала нужно удалить через /admin/rooms/{id}/images/{imageId}).
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: imageId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Фото удалено
+        '409':
+          description: Фото привязано к номеру или услуге — удаление запрещено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                code: IMAGE_IN_USE
+                message: Фото привязано к Коттедж №7 / №8. Сначала удалите его из номера.
+
+  /admin/gallery/reorder:
+    put:
+      tags: [Admin — Gallery]
+      summary: Задать ручной порядок фото в категории галереи
+      description: >
+        Принимает массив ID фото в нужном порядке и проставляет
+        galleryOrder = индекс в массиве (0, 1, 2...).
+        Фото не из переданного массива получают galleryOrder = null
+        и показываются в конце по uploadedAt desc.
+        Используется для drag-and-drop в админке.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GalleryReorderRequest'
+      responses:
+        '200':
+          description: Порядок обновлён
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  updated:
+                    type: integer
+                    description: Количество обновлённых фото
+                    example: 5
+        '400':
+          description: Переданы несуществующие ID фото
+        '401':
+          description: Не авторизован
