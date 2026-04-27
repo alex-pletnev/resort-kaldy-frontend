@@ -17,6 +17,7 @@ export default function HowToGetTeaser() {
               height="100%"
               style={{ border: 0 }}
               allowFullScreen
+              sandbox="allow-scripts allow-same-origin"
               title="Карта базы отдыха Калды.ру"
             />
           </div>

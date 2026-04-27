@@ -1,6 +1,6 @@
 export default function ContactsRow() {
   return (
-    <section className="py-16 px-6 bg-bg-secondary">
+    <section className="py-16 px-6 bg-bg">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Телефон */}
         <div className="bg-white rounded-[12px] p-6 shadow-[var(--shadow-card)]">

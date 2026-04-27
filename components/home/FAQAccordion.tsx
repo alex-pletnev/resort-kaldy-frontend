@@ -41,7 +41,7 @@ export default function FAQAccordion() {
         <div className="flex flex-col gap-3">
           {faqs.map((faq, i) => (
             <div
-              key={i}
+              key={faq.question}
               className="bg-white rounded-[12px] border border-border overflow-hidden"
             >
               <button

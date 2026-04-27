@@ -136,13 +136,13 @@ import { Playfair_Display, Nunito } from 'next/font/google'
 
 const playfair = Playfair_Display({
   subsets: ['latin', 'cyrillic'],
-  variable: '--font-display',
+  variable: '--font-playfair',
   display: 'swap',
 })
 
 const nunito = Nunito({
   subsets: ['latin', 'cyrillic'],
-  variable: '--font-body',
+  variable: '--font-nunito',
   display: 'swap',
 })
 ```
