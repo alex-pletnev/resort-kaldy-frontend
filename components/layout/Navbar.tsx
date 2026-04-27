@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 
 const navLinks = [
   { href: "/rooms", label: "Номера" },
@@ -13,6 +14,7 @@ const navLinks = [
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-md">
@@ -34,7 +36,11 @@ export default function Navbar() {
             <Link
               key={l.href}
               href={l.href}
-              className="text-text hover:text-primary transition-colors text-[1.0625rem]"
+              className={`transition-colors text-[1.0625rem] ${
+                pathname === l.href
+                  ? "text-primary font-semibold underline underline-offset-4 decoration-primary"
+                  : "text-text hover:text-primary"
+              }`}
             >
               {l.label}
             </Link>
@@ -65,7 +71,11 @@ export default function Navbar() {
             <Link
               key={l.href}
               href={l.href}
-              className="text-text text-[1.0625rem] hover:text-primary"
+              className={`text-[1.0625rem] transition-colors ${
+                pathname === l.href
+                  ? "text-primary font-semibold"
+                  : "text-text hover:text-primary"
+              }`}
               onClick={() => setOpen(false)}
             >
               {l.label}
