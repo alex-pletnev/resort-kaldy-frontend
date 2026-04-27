@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { ROOMS } from "@/lib/rooms";
 import RoomCard from "./RoomCard";
@@ -58,37 +58,36 @@ export default function RoomsCatalog() {
     page * ITEMS_PER_PAGE
   );
 
-  function handleFilterChange<T>(setter: (v: T) => void) {
-    return (v: T) => {
-      setter(v);
-      setPage(1);
-    };
-  }
+  const onTypeChange = useCallback((v: string) => { setType(v); setPage(1); }, []);
+  const onCapacityChange = useCallback((v: string) => { setCapacity(v); setPage(1); }, []);
+  const onPriceMinChange = useCallback((v: string) => { setPriceMin(v); setPage(1); }, []);
+  const onPriceMaxChange = useCallback((v: string) => { setPriceMax(v); setPage(1); }, []);
+  const onSortChange = useCallback((v: SortOption) => { setSort(v); setPage(1); }, []);
 
-  const filterProps = {
+  const filterProps = useMemo(() => ({
     type,
     capacity,
     priceMin,
     priceMax,
     sort,
-    onTypeChange: handleFilterChange(setType),
-    onCapacityChange: handleFilterChange(setCapacity),
-    onPriceMinChange: handleFilterChange(setPriceMin),
-    onPriceMaxChange: handleFilterChange(setPriceMax),
-    onSortChange: handleFilterChange<SortOption>(setSort),
-  };
+    onTypeChange,
+    onCapacityChange,
+    onPriceMinChange,
+    onPriceMaxChange,
+    onSortChange,
+  }), [type, capacity, priceMin, priceMax, sort, onTypeChange, onCapacityChange, onPriceMinChange, onPriceMaxChange, onSortChange]);
 
   return (
     <main className="min-h-screen">
       {/* Page header */}
       <div className="bg-white border-b border-border">
         <div className="max-w-6xl mx-auto px-6 py-8">
-          <nav className="text-sm text-text-muted mb-4">
+          <nav aria-label="breadcrumb" className="text-sm text-text-muted mb-4">
             <Link href="/" className="hover:text-primary transition-colors">
               Главная
             </Link>
             <span className="mx-2">›</span>
-            <span className="text-text">Номера и коттеджи</span>
+            <span className="text-text" aria-current="page">Номера и коттеджи</span>
           </nav>
           <h1 className="font-display text-[2rem] md:text-[2.5rem] font-bold text-text mb-2">
             Номера и коттеджи
@@ -146,6 +145,7 @@ export default function RoomsCatalog() {
               </h3>
               <button
                 onClick={() => setMobileFiltersOpen(false)}
+                aria-label="Закрыть"
                 className="text-text-muted text-2xl leading-none"
               >
                 ×

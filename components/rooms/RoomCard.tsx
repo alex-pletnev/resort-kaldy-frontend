@@ -25,7 +25,7 @@ export default function RoomCard({ room, view = "grid" }: Props) {
           room.featured ? "border-[1.5px] border-accent" : ""
         }`}
       >
-        <div className="relative w-[200px] shrink-0 bg-bg-secondary">
+        <div className="relative w-[200px] min-h-[160px] shrink-0 bg-bg-secondary">
           <Image
             src={room.photo}
             alt={room.name}

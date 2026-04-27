@@ -1,5 +1,3 @@
-"use client";
-
 export type SortOption = "popularity" | "price-asc" | "price-desc";
 
 const TYPE_OPTIONS = [
@@ -54,7 +52,9 @@ function ChipGroup({
       {options.map((opt) => (
         <button
           key={opt.value}
+          type="button"
           onClick={() => onChange(opt.value)}
+          aria-pressed={value === opt.value}
           className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
             value === opt.value
               ? "bg-accent/20 text-accent-dark border border-accent"

@@ -37,7 +37,7 @@ export default function Navbar() {
               key={l.href}
               href={l.href}
               className={`transition-colors text-[1.0625rem] ${
-                pathname === l.href
+                pathname === l.href || pathname.startsWith(l.href + "/")
                   ? "text-primary font-semibold underline underline-offset-4 decoration-primary"
                   : "text-text hover:text-primary"
               }`}
@@ -72,7 +72,7 @@ export default function Navbar() {
               key={l.href}
               href={l.href}
               className={`text-[1.0625rem] transition-colors ${
-                pathname === l.href
+                pathname === l.href || pathname.startsWith(l.href + "/")
                   ? "text-primary font-semibold"
                   : "text-text hover:text-primary"
               }`}

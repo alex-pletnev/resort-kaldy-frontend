@@ -12,7 +12,7 @@ export default function Pagination({
   if (totalPages <= 1) return null;
 
   return (
-    <div className="flex items-center justify-center gap-2 py-10">
+    <nav aria-label="Пагинация" className="flex items-center justify-center gap-2 py-10">
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
@@ -24,6 +24,7 @@ export default function Pagination({
         <button
           key={page}
           onClick={() => onPageChange(page)}
+          aria-current={page === currentPage ? "page" : undefined}
           className={`w-9 h-9 text-sm font-medium rounded-full transition-colors ${
             page === currentPage
               ? "bg-accent text-bg-dark"
@@ -40,6 +41,6 @@ export default function Pagination({
       >
         След. →
       </button>
-    </div>
+    </nav>
   );
 }
