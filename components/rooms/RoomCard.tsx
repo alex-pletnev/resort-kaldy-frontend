@@ -27,7 +27,7 @@ export default function RoomCard({ room, view = "grid" }: Props) {
       >
         <div className="relative w-[200px] min-h-[160px] shrink-0 bg-bg-secondary">
           <Image
-            src={room.photo}
+            src={room.photos[0]}
             alt={room.name}
             fill
             className="object-cover"
@@ -98,7 +98,7 @@ export default function RoomCard({ room, view = "grid" }: Props) {
     >
       <div className="relative h-[160px] bg-bg-secondary">
         <Image
-          src={room.photo}
+          src={room.photos[0]}
           alt={room.name}
           fill
           className="object-cover"
