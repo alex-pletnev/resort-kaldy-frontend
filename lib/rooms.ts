@@ -26,8 +26,8 @@ export interface Room {
 
 const BASE = "https://storage.yandexcloud.net/kaldy-media";
 
-function photos(slug: string, count = 3): string[] {
-  return Array.from({ length: count }, (_, i) => `${BASE}/${slug}-photo-${i + 1}.jpg`);
+function range(prefix: string, count: number): string[] {
+  return Array.from({ length: count }, (_, i) => `${BASE}/${prefix}-photo-${i + 1}.jpg`);
 }
 
 export const TYPE_LABELS: Record<RoomType, string> = {
@@ -79,7 +79,12 @@ export const ROOMS: Room[] = [
     additionalGuestPrice: 1000,
     featured: false,
     noLinen: false,
-    photos: photos("cottage-1"),
+    photos: [
+      ...range("rooms-cottage-1-room-1", 10),
+      ...range("rooms-cottage-1-room-2", 7),
+      ...range("rooms-cottage-1-room-3", 8),
+      ...range("rooms-cottage-1-room-4", 8),
+    ],
     description:
       "Просторный двухэтажный коттедж на 5–6 человек на берегу озера Калды. Первый этаж — общая зона с кухней и санузлом, второй — спальни для комфортного отдыха. Терраса с видом на берёзовый лес и озеро создаёт особую атмосферу уединения. Подходит для большой семьи или компании, ценящей пространство и комфорт на природе.",
     amenities: LARGE_AMENITIES,
@@ -98,7 +103,10 @@ export const ROOMS: Room[] = [
     additionalGuestPrice: 700,
     featured: true,
     noLinen: false,
-    photos: photos("cottage-7-8"),
+    photos: [
+      ...range("rooms-cottage-8-room-3-4", 9),
+      ...range("rooms-cottage-8-room-5-6", 8),
+    ],
     description:
       "Один из самых популярных вариантов на базе — объединённый коттедж №7 / №8 рассчитан на компанию до 7 человек. Несколько жилых зон позволяют каждому найти своё пространство. Удобное расположение в центре базы обеспечивает быстрый доступ к пляжу, баням и другой инфраструктуре. Идеально подходит для большой компании друзей или двух семей.",
     amenities: LARGE_AMENITIES,
@@ -117,7 +125,11 @@ export const ROOMS: Room[] = [
     additionalGuestPrice: 700,
     featured: false,
     noLinen: false,
-    photos: photos("cottage-10"),
+    photos: [
+      `${BASE}/territory-photo-1.jpg`,
+      `${BASE}/territory-photo-2.jpg`,
+      `${BASE}/territory-photo-3.jpg`,
+    ],
     description:
       "Уютный двухэтажный коттедж для небольшой семьи или компании до 4 человек. На первом этаже — гостиная с кухонной зоной, на втором — спальня. Тихое расположение среди берёзового леса создаёт атмосферу настоящего загородного отдыха. Отличный выбор для пары с детьми или небольшой компании друзей.",
     amenities: BASE_AMENITIES,
@@ -136,7 +148,12 @@ export const ROOMS: Room[] = [
     additionalGuestPrice: 700,
     featured: false,
     noLinen: false,
-    photos: photos("cottage-14"),
+    photos: [
+      ...range("rooms-cottage-14-room-1", 2),
+      ...range("rooms-cottage-14-room-2", 3),
+      ...range("rooms-cottage-14-room-3", 3),
+      ...range("rooms-cottage-14-room-4", 4),
+    ],
     description:
       "Большой коттедж из двух независимых блоков с отдельными входами — всего до 8 мест. Каждый блок имеет собственную спальню, гостиную и санузел. Можно арендовать один блок или весь коттедж целиком — идеально для двух семей, приехавших вместе. Широкая терраса объединяет оба блока для совместного отдыха.",
     amenities: LARGE_AMENITIES,
@@ -155,7 +172,11 @@ export const ROOMS: Room[] = [
     additionalGuestPrice: 700,
     featured: false,
     noLinen: false,
-    photos: photos("cottage-9"),
+    photos: [
+      ...range("rooms-building-9-room-2", 4),
+      ...range("rooms-building-9-room-3", 4),
+      ...range("rooms-building-9-room-4", 5),
+    ],
     description:
       "Многоуровневый коттедж с гибкой планировкой: номер на 4 места на первом этаже и просторные номера на 6–7 мест на втором. Подходит для семей разного размера. Светлые просторные комнаты и близость к озеру делают этот коттедж отличным выбором для летнего отдыха.",
     amenities: LARGE_AMENITIES,
@@ -174,7 +195,14 @@ export const ROOMS: Room[] = [
     additionalGuestPrice: 700,
     featured: false,
     noLinen: false,
-    photos: photos("building-2"),
+    photos: [
+      ...range("rooms-building-2-room-9-10", 10),
+      ...range("rooms-building-2-room-1", 6),
+      ...range("rooms-building-2-room-6", 6),
+      ...range("rooms-building-2-room-7", 6),
+      ...range("rooms-building-2-room-11", 5),
+      ...range("rooms-building-2-room-12", 6),
+    ],
     description:
       "Двухэтажный жилой корпус с широким выбором номеров на 2–6 человек. Удобный формат мини-гостиницы в окружении природы — у каждого номера отдельный вход, собственный санузел и всё необходимое для комфорта. Расположен в центре базы рядом со столовой и детскими площадками. Оптимальный выбор для тех, кто предпочитает классическое размещение.",
     amenities: BASE_AMENITIES,
@@ -193,7 +221,11 @@ export const ROOMS: Room[] = [
     additionalGuestPrice: 700,
     featured: false,
     noLinen: true,
-    photos: photos("town-15-17"),
+    photos: [
+      `${BASE}/territory-photo-4.jpg`,
+      `${BASE}/territory-photo-5.jpg`,
+      `${BASE}/territory-photo-6.jpg`,
+    ],
     description:
       "Компактные двухэтажные коттеджи «Городка» на 3 человека каждый. Простая и функциональная обстановка для активного отдыха — здесь главное не номер, а озеро, пляж и свежий воздух. Постельное бельё не предоставляется: необходимо привезти с собой (можно заказать за 150 ₽/комплект). Доступная цена делает этот вариант отличным для экономного отдыха.",
     amenities: BASE_AMENITIES,
@@ -212,7 +244,10 @@ export const ROOMS: Room[] = [
     additionalGuestPrice: 700,
     featured: false,
     noLinen: true,
-    photos: photos("colored-houses"),
+    photos: [
+      ...range("rooms-colored-houses-%D0%B7%D0%B5%D0%BB%D0%B5%D0%BD%D1%8B%D0%B8%CC%86", 3),
+      ...range("rooms-colored-houses-%D0%BA%D0%BE%D1%80%D0%B8%D1%87%D0%BD%D0%B5%D0%B2%D1%8B%D0%B8%CC%86", 4),
+    ],
     description:
       "Яркие разноцветные домики — синий, зелёный, жёлтый, розовый и коричневый — создают особую атмосферу дачного отдыха у озера. Рассчитаны на 3–5 человек в зависимости от выбранного цвета. Близость к пляжу и доступная цена делают их популярным выбором. Постельное бельё необходимо привезти с собой (150 ₽/комплект).",
     amenities: BASE_AMENITIES,
@@ -231,7 +266,7 @@ export const ROOMS: Room[] = [
     additionalGuestPrice: 700,
     featured: false,
     noLinen: true,
-    photos: photos("fishing-houses"),
+    photos: range("rooms-fishing-houses-%D1%80%D1%8B%D0%B1%D0%B0%D1%86%D0%BA%D0%B8%D0%B8%CC%86-2", 3),
     description:
       "Небольшие уютные домики для рыбаков и любителей тихого отдыха на берегу. Рассчитаны на 2–3 человека — идеально для рыбацкого выезда или уединённого отдыха вдали от городского шума. Всё необходимое для ночлега после активного дня на воде. Постельное бельё необходимо привезти с собой (150 ₽/комплект).",
     amenities: BASE_AMENITIES,
@@ -250,7 +285,11 @@ export const ROOMS: Room[] = [
     additionalGuestPrice: 700,
     featured: false,
     noLinen: true,
-    photos: photos("flower-house"),
+    photos: [
+      `${BASE}/territory-photo-7.jpg`,
+      `${BASE}/territory-photo-8.jpg`,
+      `${BASE}/territory-photo-9.jpg`,
+    ],
     description:
       "Уютный небольшой домик для компании до 3 человек в окружении природы базы отдыха Калды.ру. Тихое расположение, свежий воздух и близость к озеру — всё, что нужно для настоящего отдыха. Постельное бельё необходимо привезти с собой (150 ₽/комплект).",
     amenities: BASE_AMENITIES,
