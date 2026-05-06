@@ -1,12 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
+import { TYPE_LABELS } from "@/lib/rooms";
 import type { Room } from "@/lib/rooms";
-
-const TYPE_LABELS: Record<Room["type"], string> = {
-  cottage: "Коттедж",
-  building: "Корпус",
-  house: "Домик",
-};
 
 interface Props {
   room: Room;
@@ -27,7 +22,7 @@ export default function RoomCard({ room, view = "grid" }: Props) {
       >
         <div className="relative w-[200px] min-h-[160px] shrink-0 bg-bg-secondary">
           <Image
-            src={room.photo}
+            src={room.photos[0]}
             alt={room.name}
             fill
             className="object-cover"
@@ -98,7 +93,7 @@ export default function RoomCard({ room, view = "grid" }: Props) {
     >
       <div className="relative h-[160px] bg-bg-secondary">
         <Image
-          src={room.photo}
+          src={room.photos[0]}
           alt={room.name}
           fill
           className="object-cover"
