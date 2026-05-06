@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ROOMS, type Room } from "@/lib/rooms";
+import { ROOMS } from "@/lib/rooms";
 
 interface Props {
   currentSlug: string;
@@ -10,7 +10,7 @@ export default function RelatedRooms({ currentSlug }: Props) {
   const current = ROOMS.find((r) => r.slug === currentSlug);
 
   const related = ROOMS.filter((r) => r.slug !== currentSlug)
-    .sort((a: Room, b: Room) => {
+    .sort((a, b) => {
       if (!current) return 0;
       const aMatch = a.type === current.type ? -1 : 0;
       const bMatch = b.type === current.type ? -1 : 0;

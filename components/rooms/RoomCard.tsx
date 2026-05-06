@@ -1,12 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
+import { TYPE_LABELS } from "@/lib/rooms";
 import type { Room } from "@/lib/rooms";
-
-const TYPE_LABELS: Record<Room["type"], string> = {
-  cottage: "Коттедж",
-  building: "Корпус",
-  house: "Домик",
-};
 
 interface Props {
   room: Room;

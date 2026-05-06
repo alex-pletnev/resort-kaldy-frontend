@@ -20,7 +20,9 @@ export async function generateMetadata({
   if (!room) return { title: "Номер не найден" };
   return {
     title: `${room.name} — База отдыха Калды.ру`,
-    description: room.description.slice(0, 160),
+    description: room.description.length > 155
+      ? room.description.slice(0, room.description.lastIndexOf(" ", 155)) + "…"
+      : room.description,
   };
 }
 

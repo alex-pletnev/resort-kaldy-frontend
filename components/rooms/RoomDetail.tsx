@@ -3,13 +3,10 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { TYPE_LABELS } from "@/lib/rooms";
 import type { Room } from "@/lib/rooms";
 
-const TYPE_LABELS: Record<Room["type"], string> = {
-  cottage: "Коттедж",
-  building: "Корпус",
-  house: "Домик",
-};
+const SITE_URL = "https://kaldy.ru";
 
 const RULES = [
   { label: "Заезд с 14:00", warning: false },
@@ -44,7 +41,7 @@ export default function RoomDetail({ room }: Props) {
     setLightboxOpen(true);
   }
 
-  const shareUrl = `https://kaldy.ru/rooms/${room.slug}`;
+  const shareUrl = `${SITE_URL}/rooms/${room.slug}`;
 
   return (
     <>
@@ -102,6 +99,7 @@ export default function RoomDetail({ room }: Props) {
             {/* Desktop gallery: main + 2 thumbs */}
             <div className="hidden md:grid grid-cols-[3fr_1fr] gap-2 h-[300px] rounded-xl overflow-hidden mb-6">
               <button
+                type="button"
                 onClick={() => openLightbox(0)}
                 className="relative h-full bg-bg-secondary"
                 aria-label="Открыть галерею"
@@ -116,6 +114,7 @@ export default function RoomDetail({ room }: Props) {
               </button>
               <div className="grid grid-rows-2 gap-2 h-full">
                 <button
+                  type="button"
                   onClick={() => openLightbox(1)}
                   className="relative h-full bg-bg-secondary"
                   aria-label="Фото 2"
@@ -129,6 +128,7 @@ export default function RoomDetail({ room }: Props) {
                   />
                 </button>
                 <button
+                  type="button"
                   onClick={() => openLightbox(2)}
                   className="relative h-full bg-bg-secondary"
                   aria-label={
@@ -159,7 +159,8 @@ export default function RoomDetail({ room }: Props) {
             <div className="md:hidden flex gap-2 overflow-x-auto pb-2 mb-6 -mx-6 px-6 snap-x">
               {room.photos.map((photo, i) => (
                 <button
-                  key={i}
+                  key={photo}
+                  type="button"
                   onClick={() => openLightbox(i)}
                   className="relative shrink-0 w-[220px] h-[150px] rounded-xl overflow-hidden bg-bg-secondary snap-start"
                   aria-label={`Фото ${i + 1}`}
@@ -360,6 +361,7 @@ export default function RoomDetail({ room }: Props) {
           onClick={() => setLightboxOpen(false)}
         >
           <button
+            type="button"
             onClick={(e) => {
               e.stopPropagation();
               setLightboxIdx(
@@ -386,6 +388,7 @@ export default function RoomDetail({ room }: Props) {
           </div>
 
           <button
+            type="button"
             onClick={(e) => {
               e.stopPropagation();
               setLightboxIdx((i) => (i + 1) % room.photos.length);
@@ -397,6 +400,7 @@ export default function RoomDetail({ room }: Props) {
           </button>
 
           <button
+            type="button"
             onClick={() => setLightboxOpen(false)}
             className="absolute top-4 right-4 text-white text-2xl p-2 hover:bg-white/10 rounded-full transition-colors"
             aria-label="Закрыть"

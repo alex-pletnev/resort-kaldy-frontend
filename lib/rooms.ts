@@ -30,6 +30,12 @@ function photos(slug: string, count = 3): string[] {
   return Array.from({ length: count }, (_, i) => `${BASE}/${slug}-photo-${i + 1}.jpg`);
 }
 
+export const TYPE_LABELS: Record<RoomType, string> = {
+  cottage: "Коттедж",
+  building: "Корпус",
+  house: "Домик",
+};
+
 const BASE_AMENITIES: RoomAmenity[] = [
   { label: "Пляж с понтоном" },
   { label: "Бесплатные лежаки на пляже" },
@@ -44,10 +50,18 @@ const BASE_AMENITIES: RoomAmenity[] = [
 ];
 
 const LARGE_AMENITIES: RoomAmenity[] = [
-  ...BASE_AMENITIES.slice(0, 6),
+  { label: "Пляж с понтоном" },
+  { label: "Бесплатные лежаки на пляже" },
+  { label: "Мангальная зона" },
+  { label: "Парковка на территории" },
+  { label: "Баня (аренда, 1 250 ₽/ч)" },
+  { label: "Столовая на территории" },
   { label: "Несколько спальных комнат" },
+  { label: "Санузел в номере", uncertain: true },
   { label: "Кухонная зона", uncertain: true },
-  ...BASE_AMENITIES.slice(6),
+  { label: "Холодильник", uncertain: true },
+  { label: "Wi-Fi", uncertain: true },
+  { label: "Телевизор", uncertain: true },
 ];
 
 export const ROOMS: Room[] = [
